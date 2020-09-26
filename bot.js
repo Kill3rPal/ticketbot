@@ -179,7 +179,7 @@ client.on('message', msg => {
 if (msg.author.bot) return;
 if (msg.content === prefix+"help") {
 msg.channel.send(`**📩 - H E L P - L I S T\n~~=================~~**\n**🎟️ - ( ${prefix}new )**\n  **Ex:** ↬ ${prefix}new Reward\n**🎟️ - ( ${prefix}close )**\n  **Ex:** ↬ ${prefix}close\n**🎟️ - ( ${prefix}mtickets )**\n  **Ex:** ↬ ${prefix}mtickets\n**~~=================~~   
-By: LoRnS **`);
+  By: !                     Kill3rPal#2247 **`);
 }
 });
 
