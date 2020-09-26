@@ -183,3 +183,6 @@ By: LoRnS **`);
 });
 
 ////////////
+
+
+client.login(process.env.TOKEN);
