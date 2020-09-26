@@ -185,7 +185,6 @@ By: LoRnS **`);
 
 ////////////
 
-const developers = ["742070589212327947","id"]
 client.on('message', message => {
     var argresult = message.content.split(` `).slice(1).join(' ');
       if (!developers.includes(message.author.id)) return;
