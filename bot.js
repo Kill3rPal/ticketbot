@@ -49,14 +49,20 @@ client.on("message", async message => {
       tchannels.push(c.id);
       c.setParent(category);
       message.channel.send(`**تـم فـتـح تـذكرتـك**`);
-      c.overwritePermissions(message.guild.id, {
-        READ_MESSAGES: false,
-        SEND_MESSAGES: false
-      });
-      c.overwritePermissions(message.author.id, {
-        READ_MESSAGES: true,
-        SEND_MESSAGES: true
-      });
+        let role = message.guild.roles.find("name", "Support Team");
+        let role2 = message.guild.roles.find("name", "@everyone");
+        c.overwritePermissions(role, {
+            SEND_MESSAGES: true,
+            READ_MESSAGES: true
+        });
+        c.overwritePermissions(role2, {
+            SEND_MESSAGES: false,
+            READ_MESSAGES: false
+        });
+        c.overwritePermissions(message.author, {
+            SEND_MESSAGES: true,
+            READ_MESSAGES: true
+        });
  
       if (args[1])
         openReason = `\nReason: [ **__${args.slice(1).join(" ")}__** ]`;
