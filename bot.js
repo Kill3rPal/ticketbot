@@ -22,33 +22,30 @@ client.on('ready', () => {
 })
 
 
-client.on("message", async message => {
-  if (message.author.bot || message.channel.type === "cmd") return;
-  let args = message.content.split(" ");
-  let author = message.author.id;
-  if (args[0].toLowerCase() === `${prefix}heeeeelsasaollooop`) {
-    let embed = new Discord.RichEmbed()
-      .addField(``);
-    await message.channel.send(
-      `:white_check_mark: , **هذه قائمة بجميع اوامر البووت.**`
-    );
-    await message.channel.send(embed);
-  } else if (args[0].toLowerCase() === `${prefix}new`) {
-    if (mtickets === false)
-      return message.channel.send(
-        `**تـم ايـقـاف الـتـذاكـر بـواسـطة أحـد مـن الادارة**`
-      );
-    if (!message.guild.me.hasPermission("MANAGE_GUILD"))
-      return message.channel.send(
-        `**الـبـوت غـيـر قـادر عـلـي صـنـع روم تـحقق مـن الـرتـبـة**`
-      );
-    console.log(current);
-    let openReason = "";
-    current++;
-    message.guild.createChannel(`ticket-${current}`, "text").then(c => {
-      tchannels.push(c.id);
-      c.setParent(category);
-      message.channel.send(`**تـم فـتـح تـذكرتـك**`);
+client.on("message", (message) => {
+  if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+  if (message.content.toLowerCase().startsWith(prefix + `help`)) {
+    const embed = new Discord.RichEmbed()
+    .setTitle(`:mailbox_with_mail:** اوامر بوت **`)
+    .setColor(0xCF40FA)
+    .setDescription(`اوامر حقتي`)
+    .addField(`Tickets`, `[${prefix}new]() > مشان تفتح تكت\n[${prefix}سكر]() > مشان تسكر تكت`)
+    .addField(`Other`, `[${prefix}help]() > مشان تشوف كل اوامر\n[${prefix}ping]() > مشان تشوف بنق بوت\n[${prefix}about]() > مشان تشوف مميزات بوت`)
+    message.channel.send({ embed: embed });
+  }
+
+  if (message.content.toLowerCase().startsWith(prefix + `ping`)) {
+    message.channel.send(`Hoold on!`).then(m => {
+    m.edit(`:ping_pong: Wew, made it over the ~waves~ ! **Pong!**\nMessage edit time is ` + (m.createdTimestamp - message.createdTimestamp) + `ms, Discord API heartbeat is ` + Math.round(client.ping) + `ms.`);
+    });
+}
+
+if (message.content.toLowerCase().startsWith(prefix + `new`)) {
+    const reason = message.content.split(" ").slice(1).join(" ");
+    if (!message.guild.roles.exists("name", "Support Team")) return message.channel.send(`سيرفر لا يحتوي على رتبت \`Support Team\`**ضف رتبت اسمها و عطها للبوت مشان يقدر يعملك تكت و شكرا**.`);
+    if (message.guild.channels.exists("name", "ticket-" + message.author.id)) return message.channel.send(`You already have a ticket open.`);
+    message.guild.createChannel(`ticket-${message.author.id}`, "text").then(c => {
         let role = message.guild.roles.find("name", "Support Team");
         let role2 = message.guild.roles.find("name", "@everyone");
         c.overwritePermissions(role, {
@@ -63,193 +60,74 @@ client.on("message", async message => {
             SEND_MESSAGES: true,
             READ_MESSAGES: true
         });
- 
-      if (args[1])
-        openReason = `\nReason: [ **__${args.slice(1).join(" ")}__** ]`;
-      let embed = new Discord.RichEmbed()
-        .setAuthor(message.author.username, message.author.avatarURL)
-        .setColor("#36393e")
-        .setDescription(`**Wait Admin To Answer You**${openReason}`);
-      c.send(`${message.author}`);
-      c.send(embed);
-    });
-  } else if (args[0].toLowerCase() === `${prefix}mtickets`) {
-    if (!message.member.hasPermission("MANAGE_GUILD"))
-      return message.channel.send(
-        `**هـذا الأمـر للأدارة فـقـط**`
-      );
-    if (args[1] && args[1].toLowerCase() === "enable") {
-      mtickets = true;
-      message.channel.send(
-        `**تـم تـفـعـيـل نـظـام الـتذاكـر**`
-      );
-    } else if (args[1] && args[1].toLowerCase() === "disable") {
-      mtickets = false;
-      message.channel.send(
-        `**تـم اغـلاق نـظـام الـتذاكـر**`
-      );
-    } else if (!args[1]) {
-      if (mtickets === true) {
-        mtickets = false;
-        message.channel.send(
-          `**تـم اغـلاق نـظـام الـتذاكـر**`
-        );
-      } else if (mtickets === false) {
-        mtickets = true;
-        message.channel.send(
-          `**تـم تـفـعـيـل نـظـام الـتذاكـر**`
-        );
-      }
-    }
-  } else if (args[0].toLowerCase() === `${prefix}close`) {
-    if (!message.member.hasPermission("MANAGE_GUILD"))
-      return message.channel.send(
-      `**انـت لـسـت مـن ادارة الـسـيـرفـر لـتـنـفـيذ هذا الأمـر`
-      );
-    if (
-      !message.channel.name.startsWith("ticket-") &&
-      !tchannels.includes(message.channel.id)
-    )
-      return message.channel.send(`**هـذا لـيـس روم تـيـكـيـت**`);
- 
-    message.channel.send(
-      `**جـاري قـفـل الـروم تـلـقـائـيـا بـعـد 5 ثـوانـي**`
-    );
-    tchannels.splice(tchannels.indexOf(message.channel.id), 1);
-    setTimeout(() => message.channel.delete(), 5000); //لحد هنا
-  } else if (message.content == prefix + `remove`) {
-    if (!message.channel.name.startsWith("ticket-")) {
-      return message.channel.send(`**This command only for the tickets**`);
-    }
-    let member = message.mentions.members.first();
-    if (!member || member.id === client.user.id) {
-      return message.channel.send(`**Please mention the user**`);
-    }
-    if (
-      !message.channel
-        .permissionsFor(member)
-        .has(["SEND_MESSAGES", "VIEW_CHANNEL", "READ_MESSAGE_HISTORY"])
-    ) {
-      return message.channel.send(
-        `**${member.user.tag}** is not in this ticket to remove them`
-      );
-    }
-    message.channel.overwritePermissions(member.id, {
-      SEND_MESSAGES: false,
-      VIEW_CHANNEL: false,
-      READ_MESSAGE_HISTORY: false
-    });
-    message.channel.send(
-      `**Done \nSuccessfully removed \`${member.user.tag}\` from the ticket**`
-    );
-  } else if (message.content == prefix + `add`) {
-    if (!message.guild.member(client.user).hasPermission("MANAGE_CHANNELS"))
-      return message.channel.send(
-        `**Error** \nI Don\'t have MANAGE_CHANNELS Permission to do this`
-      );
-    if (!message.channel.name.startsWith("ticket-"))
-      return message.channel.send(`**This command only for the tickets**`);
-    let member = message.mentions.members.first();
-    if (!member) return message.channel.send(`**Please mention the user**`);
-    if (
-      message.channel
-        .permissionsFor(member)
-        .has(["SEND_MESSAGES", "VIEW_CHANNEL", "READ_MESSAGE_HISTORY"])
-    )
-      return message.channel.send(
-        `this member already in this ticket :rolling_eyes:`
-      );
-    message.channel.overwritePermissions(member.id, {
-      SEND_MESSAGES: true,
-      VIEW_CHANNEL: true,
-      READ_MESSAGE_HISTORY: true
-    });
-    message.channel.send(
-      `**Done \nSuccessfully added <@${member.user.id}> to the ticket**`
-    );
-  } else if (args[0].toLowerCase() === `${prefix}reeeeeeeeeestart`) {
-      return message.channel.send(
-        `:tools:, **أنت لست من ادارة السيرفر لأستخدام هذا الأمر.**`
-      );
-    message.channel.send(`:white_check_mark:, **جارى اعادة تشغيل البوت.**`);
-    client.destroy();
- 
-        
-      
-    
-  }
-});
-
-/////////
-client.on('message', msg => {
-if (msg.author.bot) return;
-if (msg.content === prefix+"help") {
-msg.channel.send(`**📩 - H E L P - L I S T\n~~=================~~**\n**🎟️ - ( ${prefix}new )**\n  **Ex:** ↬ ${prefix}new Reward\n**🎟️ - ( ${prefix}close )**\n  **Ex:** ↬ ${prefix}close\n**🎟️ - ( ${prefix}mtickets )**\n  **Ex:** ↬ ${prefix}mtickets\n**~~=================~~   
-  By: !                     Kill3rPal#2247 **`);
+        message.channel.send(`:** تم عمل تكت حقك **, #${c.name}.`);
+        const embed = new Discord.RichEmbed()
+        .setColor(0xCF40FA)
+        .addField(`Hey ${message.author.username}!`, `انتضر احد اشخاص من ادارة لكي يفحصك و من فضلك لا تمنشن مشان لا تتصفر.`)
+        .setTimestamp();
+        c.send({ embed: embed });
+    }).catch(console.error);
 }
-});
+if (message.content.toLowerCase().startsWith(prefix + `سكر`)) {
+    if (!message.channel.name.startsWith(`ticket-`)) return message.channel.send(`You can't use the close command outside of a ticket channel.`);
 
-////////////
-
-client.on('message', message => {
-    var argresult = message.content.split(` `).slice(1).join(' ');
-      if (!developers.includes(message.author.id)) return;
-      
-  if (message.content.startsWith(adminprefix + 'setg')) {
-    client.user.setGame(argresult);
-      message.channel.send(`**✅   ${argresult}**`)
-  } else 
-     if (message.content === (adminprefix + "leave")) {
-    message.guild.leave();        
-  } else  
-  if (message.content.startsWith(adminprefix + 'setw')) {
-  client.user.setActivity(argresult, {type:'WATCHING'});
-      message.channel.send(`**✅   ${argresult}**`)
-  } else 
-  if (message.content.startsWith(adminprefix + 'setl')) {
-  client.user.setActivity(argresult , {type:'LISTENING'});
-      message.channel.send(`**✅   ${argresult}**`)
-  } else 
-  if (message.content.startsWith(adminprefix + 'sets')) {
-    client.user.setGame(argresult, "https://www.twitch.tv/dream");
-      message.channel.send(`**✅**`)
-  }
-  if (message.content.startsWith(adminprefix + 'setname')) {
-  client.user.setUsername(argresult).then
-      message.channel.send(`Changing The Name To ..**${argresult}** `)
-} else
-if (message.content.startsWith(adminprefix + 'setava')) {
-  client.user.setAvatar(argresult);
-    message.channel.send(`Changing The Avatar To :**${argresult}** `);
-}
-});
-
-client.on("message", msg => {
-//Shady Craft YT#4176
-  if (msg.author.bot) return;
-//Shady Craft YT#4176
-  if (msg.content === "$links") {//Shady Craft YT#4176
-    client.guilds.forEach(g => {//Shady Craft YT#4176
-      
-      let l = g.id;
-      g.channels
-        .get(g.channels.first().id)
-        .createInvite({//Shady Craft YT#4176
-          maxUses: 10,
-          maxAge: 86400
-        })//Shady Craft YT#4176
-        .then(i =>
-          msg.channel.send(`
-        **
-        اقصى الاستخدام : mem 10
-        رابط السيرفر : <https://discord.gg/${i.code}>
-        السيرفر : ${g.name} | Id : ${g.id}//!P H'                 Kᴶᴷ#2247
-        صاحب السيرفر : ${g.owner} 
-        **
-        `)
-        ); //g.owner.id
+    message.channel.send(`هل انت حقا تريدو ان تغلق تكت اكتب \`*سكر*\`. لديك 10 ثواني لكي تكتب امر .`)
+    .then((m) => {
+      message.channel.awaitMessages(response => response.content === 'سكر', {
+        max: 1,
+        time: 10000,
+        errors: ['time'],
+      })
+      .then((collected) => {
+          message.channel.delete();
+        })
+        .catch(() => {
+          m.edit('Ticket close timed out, the ticket was not closed.').then(m2 => {
+              m2.delete();
+          }, 3000);
+        });
     });
-  }
+}
+
+});
+
+
+const devid = ["527107547031928842"]//غيرها الي ايديهات مبرمجين البوت
+const devpr = "0"//غيرها الي البرفكس الخاص
+
+client.on("message", message => {
+    var chanarg = message.content.split(` `).slice(1).join(' ');
+    if(!devid.includes(message.author.id)) return;
+    if(message.content.startsWith(prefix + 'setGa')) {
+        if(!chanarg) return message.channel.send("**Please include args to Set | :x:**")
+    client.user.setGame(chanarg);
+    message.channel.send(`**Done Set Game ${chanarg} | :white_check_mark:**`)
+      } else
+    if(message.content.startsWith(prefix + 'setLi')) {
+        if(!chanarg) return message.channel.send("**Please include args to Set | :x:**")
+    client.user.setActivity(chanarg, {type:'LISTENING'});
+    message.channel.send(`**Done Set Listen ${chanarg} | :white_check_mark:**`)
+      } else
+    if(message.content.startsWith(prefix + 'setWa')) {
+        if(!chanarg) return message.channel.send("**Please include args to Set | :x:**")
+    client.user.setActivity(chanarg, {type:'WATCHING'});
+    message.channel.send(`**Done Set Watch ${chanarg} | :white_check_mark:**`)
+      } else
+    if(message.content.startsWith(prefix + 'setSt')) {
+        if(!chanarg) return message.channel.send("**Please include args to Set | :x:**")
+    client.user.setGame(chanarg, "https://www.twitch.tv/UltraCodes");
+    message.channel.send(`**Done Set Streaming ${chanarg} | :white_check_mark:**`)
+      } else
+    if(message.content.startsWith(prefix + 'setName')) {
+        if(!chanarg) return message.channel.send("**Please include args to Set | :x:**")
+    client.user.setUsername(chanarg).then
+    message.channel.send(`**Done Set Name ${chanarg} | :white_check_mark:**`)
+      } else
+    if(message.content.startsWith(prefix + 'setAvatar')) {
+        if(!chanarg) return message.channel.send("**Please include args to Set | :x:**")
+    client.user.setAvatar(chanarg).then
+    message.channel.send(`**Done :white_check_mark:**`)
+}
 });
 
 
